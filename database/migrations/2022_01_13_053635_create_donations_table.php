@@ -20,9 +20,10 @@ class CreateDonationsTable extends Migration
             $table->string('name')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
-            $table->text('comment');
+            $table->text('comment')->nullable();
             $table->unsignedInteger('amount');
-            $table->boolean('is_anonim');
+            $table->boolean('is_anonim')->default(false);
+            
             $table->boolean('is_paid')->default(false);
             $table->timestamp('paid_at')->nullable();
             $table->string('evidence')->nullable();

@@ -23,16 +23,37 @@ $router->group(['prefix' => 'api'], function () use ($router) {
         $router->post('/login', 'AuthController@login');
     });
 
+    $router->group(['prefix' => 'campaigns'], function () use ($router) {
+        $router->get('/', 'CampaignController@index');
+        $router->get('/{id}', 'CampaignController@show');
+    });
+
+    $router->group(['prefix' => 'public'], function () use ($router) {
+        $router->post('/donations', 'DonationController@store');
+        $router->post('/donations/{donationId}/confirmation', 'DonationController@confirm');
+    });
+
     $router->group(['middleware' => ['auth']], function () use ($router) {
-        // $router->get('/tes', ['middleware' => 'role:admin,user', function () {
-        //     return 'TES';
-        // }]);
         $router->group(['prefix' => 'users'], function () use ($router) {
             $router->get('/', ['middleware' => 'role:superadmin,admin', 'uses' => 'UserController@index']);
             $router->get('/{id}', ['middleware' => 'role:superadmin,admin,user', 'uses' => 'UserController@show']);
-            $router->post('/create', ['middleware' => 'role:superadmin,admin,user', 'uses' => 'UserController@create']);
             $router->put('/{id}', ['middleware' => 'role:superadmin,admin,user', 'uses' => 'UserController@update']);
             $router->delete('/{id}', ['middleware' => 'role:superadmin,admin', 'uses' => 'UserController@destroy']);
+            $router->get('/{userId}/campaigns', ['middleware' => 'role:user', 'uses' => 'CampaignController@get_my_campaigns']);
+            $router->get('/{userId}/donations', ['middleware' => 'role:user', 'uses' => 'DonationController@get_my_donations']);
+        });
+
+        $router->group(['prefix' => 'campaigns'], function () use ($router) {
+            $router->post('/', ['middleware' => 'role:user', 'uses' => 'CampaignController@store']);
+            $router->put('/{id}', ['middleware' => 'role:user', 'uses' => 'CampaignController@update']);
+            $router->delete('/{id}', ['middleware' => 'role:superadmin,admin,user', 'uses' => 'CampaignController@destroy']);
+        });
+
+        $router->group(['prefix' => 'donations'], function () use ($router) {
+            $router->get('/', ['middleware' => 'role:superadmin,admin', 'uses' => 'DonationController@index']);
+            $router->get('/{id}', ['middleware' => 'role:superadmin,admin', 'uses' => 'DonationController@show']);
+            $router->post('/', ['middleware' => 'role:user', 'uses' => 'DonationController@store']);
+            $router->post('/{donationId}/confirmation', ['middleware' => 'role:user', 'uses' => 'DonationController@confirm']);
         });
     });
 });
